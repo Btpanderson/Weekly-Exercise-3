@@ -59,8 +59,6 @@ Before starting your assignment, you need to get yourself set up on GitHub and m
 * As you work through your homework, save and commit often, push changes occasionally (maybe after you feel finished with an exercise?), and go check to see what the .md file looks like on GitHub.  
 * If you have issues, let me know! This is new to many of you and may not be intuitive at first. But, I promise, you'll get the hang of it! 
 
-
-
 ## Instructions
 
 * Put your name at the top of the document. 
@@ -97,7 +95,6 @@ garden_harvest %>%
 ```
 *Each vegetable variety seems to have the same total harvest weight despite being in different plots. We could psossibly fix this by using a different type of join function. 
 
-
   3. I would like to understand how much money I "saved" by gardening, for each vegetable type. Describe how I could use the `garden_harvest` and `garden_spending` datasets, along with data from somewhere like [this](https://products.wholefoodsmarket.com/search?sort=relevance&store=10542) to answer this question. You can answer this in words, referencing various join functions. You don't need R code but could provide some if it's helpful.
   
 *We could use the 'garden_harvest' and 'garden_spending' datasets to understand how much money that was saved for each vegetable
@@ -114,7 +111,10 @@ garden_harvest %>%
   arrange(total_weight_lbs, date) %>% 
   ggplot(aes(x = total_weight_lbs,
              y = fct_reorder(variety, total_weight_lbs))) +
-  geom_col()
+  geom_col() +
+  labs(x = "",
+       y = "",
+       title = "Total Harvest for Tomato Variety")
           
 ```
 
@@ -173,7 +173,10 @@ It's natural to expect that bikes are rented more at some times of day, some day
 ```{r}
 Trips %>% 
   ggplot(aes(sdate)) +
-  geom_density()
+  geom_density() + 
+  labs(x = "",
+       y = "Frequency",
+       title = "Density Plot of Bike Rental Trends Over Time")
 ```
 
 *This density plot illustrates the amount of times indivudals rented the bikes. The most amount of rentals occurred from the month of October to the middle of November.
@@ -184,7 +187,10 @@ Trips %>%
 Trips %>% 
   mutate(time = hour(sdate) + (minute(sdate)/60)) %>% 
   ggplot(aes(time)) +
-  geom_density()
+  geom_density() +
+  labs(x = "Time",
+       y = "Frequency",
+       title = "Density Plot of Bike Rental Trends Throughout the Day")
 ```
   
 *In this graph, we can see the times of day in which most indivduals tend to rent the bikes. The popular times of rental are between 8-9 AM and 4-5 PM.
@@ -199,20 +205,26 @@ Trips %>%
   scale_y_discrete(
     limits = c("Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"),
     breaks = c("Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"),
-    labels = c("Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"))
+    labels = c("Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday")) +
+  labs(x = "",
+       y = "",
+       title = "Amount of Rentals For Each Day of the Week")
 ```
 *From the graph, we see total amount of rentals placed on each day of the week. Friday and MOnday seem to be most popular day of the week to rent a bike.
   
   
   10. Facet your graph from exercise 8. by day of the week. Is there a pattern?
   
-```{r}
+```{r, fig.width = 10}
 Trips %>% 
   mutate(time = hour(sdate) + (minute(sdate)/60),
          day_of_week = wday(sdate)) %>% 
   ggplot(aes(time)) + 
   geom_density() +
-  facet_wrap(~day_of_week)
+  facet_wrap(~day_of_week) +
+  labs(x = "Time",
+       y = "Frequency",
+       title = "Bike Rental Trends Throughout the Day for Each Day of the Week")
 ```
 *The weekdays seem to have the same trend with two peaks of popiularity at 8-9AM and 4-5PM, while the weekends have one major peak from 7AM-8PM.
 
@@ -220,24 +232,30 @@ The variable `client` describes whether the renter is a regular user (level `Reg
 
   11. Change the graph from exercise 10 to set the `fill` aesthetic for `geom_density()` to the `client` variable. You should also set `alpha = .5` for transparency and `color=NA` to suppress the outline of the density function.
   
-```{r}
+```{r, fig.width = 10}
 Trips %>% 
   mutate(time = hour(sdate) + (minute(sdate)/60),
          day_of_week = wday(sdate)) %>% 
   ggplot(aes(time, fill = client, alpha = .5)) + 
   geom_density() +
-  facet_wrap(~day_of_week)
+  facet_wrap(~day_of_week) +
+  labs(x = "Time",
+       y = "Frequency",
+       title = "Bike Rental Trends Throughout the Day for Each Day of the Week with Client Type")
 ```
 
   12. Change the previous graph by adding the argument `position = position_stack()` to `geom_density()`. In your opinion, is this better or worse in terms of telling a story? What are the advantages/disadvantages of each?
   
-```{r}
+```{r, fig.width = 10}
 Trips %>% 
   mutate(time = hour(sdate) + (minute(sdate)/60),
          day_of_week = wday(sdate)) %>% 
   ggplot(aes(time, fill = client, alpha = .5)) + 
   geom_density(position = position_stack()) +
-  facet_wrap(~day_of_week)
+  facet_wrap(~day_of_week) +
+    labs(x = "Time",
+       y = "Frequency",
+       title = "Bike Rental Trends Throughout the Day for Each Day of the Week with Client Type")
 ```
   
   In terms of telling a story, this graph worse as it adds more to the graph making it hard to view the rela relationship between casual and registered client
@@ -273,14 +291,31 @@ i think the first is aesthetically better
   15. Use the latitude and longitude variables in `Stations` to make a visualization of the total number of departures from each station in the `Trips` data. Use either color or size to show the variation in number of departures. We will improve this plot next week when we learn about maps!
   
 ```{r}
-
+Stations %>% 
+  mutate(sstation = name) %>% 
+  left_join(Trips, 
+            by = "sstation") %>% 
+  group_by(name, lat, long) %>% 
+  count() %>% 
+  ggplot(aes(x = lat, y = long, color = n)) +
+  geom_point() +
+  labs()
 ```
   
   16. Only 14.4% of the trips in our data are carried out by casual users. Create a plot that shows which area(s) have stations with a much higher percentage of departures by casual users. What patterns do you notice? (Again, we'll improve this next week when we learn about maps).
   
 ```{r}
-
+Stations %>% 
+  mutate(sstation = name) %>% 
+  left_join(Trips, 
+            by = "sstation") %>% 
+  group_by(name, lat, long) %>% 
+  summarize(percent_casual = sum(client == "Casual")/n()) %>% 
+  ggplot(aes(x = lat, y = long, size = percent_casual, color = percent_casual)) +
+  geom_point() 
 ```
+ The center of the major bulk of the data points 
+ 
   
 **DID YOU REMEMBER TO GO BACK AND CHANGE THIS SET OF EXERCISES TO THE LARGER DATASET? IF NOT, DO THAT NOW.**
 
@@ -288,16 +323,31 @@ i think the first is aesthetically better
 
 In this section, we'll use the data from 2022-02-01 Tidy Tuesday. If you didn't use that data or need a little refresher on it, see the [website](https://github.com/rfordatascience/tidytuesday/blob/master/data/2022/2022-02-01/readme.md).
 
+
   17. The final product of this exercise will be a graph that has breed on the y-axis and the sum of the numeric ratings in the `breed_traits` dataset on the x-axis, with a dot for each rating. First, create a new dataset called `breed_traits_total` that has two variables -- `Breed` and `total_rating`. The `total_rating` variable is the sum of the numeric ratings in the `breed_traits` dataset (we'll use this dataset again in the next problem). Then, create the graph just described. Omit Breeds with a `total_rating` of 0 and order the Breeds from highest to lowest ranked. You may want to adjust the `fig.height` and `fig.width` arguments inside the code chunk options (eg. `{r, fig.height=8, fig.width=4}`) so you can see things more clearly - check this after you knit the file to assure it looks like what you expected.
 
-```{r}
-
+```{r, fig.height = 20, fig.width = 5}
+breed_traits_total <- breed_traits %>% 
+  pivot_longer(cols = -c(Breed,`Coat Type`, `Coat Length`),
+               values_to = "ratings") %>% 
+  group_by(Breed) %>% 
+  summarize(total_rating = sum(ratings)) %>% 
+  arrange(desc(total_rating))
+ 
+breed_traits_total %>% 
+  ggplot(aes(x = total_rating, y = fct_reorder(Breed, total_rating))) +
+  geom_point()
 ```
 
   18. The final product of this exercise will be a graph with the top-20 dogs in total ratings (from previous problem) on the y-axis, year on the x-axis, and points colored by each breed's ranking for that year (from the `breed_rank_all` dataset). The points within each breed will be connected by a line, and the breeds should be arranged from the highest median rank to lowest median rank ("highest" is actually the smallest numer, eg. 1 = best). After you're finished, think of AT LEAST one thing you could you do to make this graph better. HINTS: 1. Start with the `breed_rank_all` dataset and pivot it so year is a variable. 2. Use the `separate()` function to get year alone, and there's an extra argument in that function that can make it numeric. 3. For both datasets used, you'll need to `str_squish()` Breed before joining. 
   
 ```{r}
-
+breed_rank_all %>% 
+  pivot_longer(cols = -c(Breed,`links`,`Image`),
+               names_to = "year",
+               values_to = "rank") %>% 
+  select(-c("Image","links")) %>% 
+  separate(year, into = c("year"), convert = TRUE)
 ```
   
   19. Create your own! Requirements: use a `join` or `pivot` function (or both, if you'd like), a `str_XXX()` function, and a `fct_XXX()` function to create a graph using any of the dog datasets. One suggestion is to try to improve the graph you created for the Tidy Tuesday assignment. If you want an extra challenge, find a way to use the dog images in the `breed_rank_all` file - check out the `ggimage` library and [this resource](https://wilkelab.org/ggtext/) for putting images as labels.
@@ -309,6 +359,8 @@ In this section, we'll use the data from 2022-02-01 Tidy Tuesday. If you didn't 
 ## GitHub link
 
   20. Below, provide a link to your GitHub page with this set of Weekly Exercises. Specifically, if the name of the file is 03_exercises.Rmd, provide a link to the 03_exercises.md file, which is the one that will be most readable on GitHub.
+  
+https://github.com/Btpanderson/Weekly-Exercise-3/blob/1905ae2201570819965bfad1167b72a6484088c8/03_exercises.Rmd
 
 ## Challenge problem! 
 
@@ -316,6 +368,6 @@ This problem uses the data from the Tidy Tuesday competition this week, `kids`. 
 
   21. In this exercise, you are going to try to replicate the graph below, created by Georgios Karamanis. I'm sure you can find the exact code on GitHub somewhere, but **DON'T DO THAT!** You will only be graded for putting an effort into this problem. So, give it a try and see how far you can get without doing too much googling. HINT: use `facet_geo()`. The graphic won't load below since it came from a location on my computer. So, you'll have to reference the original html on the moodle page to see it.
   
-![](kids_data_karamanis.jpeg)
+
 
 **DID YOU REMEMBER TO UNCOMMENT THE OPTIONS AT THE TOP?**
